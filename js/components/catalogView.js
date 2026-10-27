@@ -2,10 +2,10 @@
  * Subject Catalog / List View Component — Simple Human-Centered Design
  */
 
-import { PREDEFINED_SUBJECTS } from '../config/subjects.js';
+import { getPredefinedSubjects } from '../config/subjects.js';
 
 export function renderCatalogView(container, state, handlers) {
-  const { customSubjects = [] } = state;
+  const { customSubjects = [], selectedBranch = "cse" } = state;
   const { onOpenCustomSubjectModal } = handlers;
 
   let selectedSemesterFilter = 'all';
@@ -17,11 +17,11 @@ export function renderCatalogView(container, state, handlers) {
     if (!listContainer) return;
 
     const allItems = [];
-    Object.keys(PREDEFINED_SUBJECTS).forEach(sem => {
-      PREDEFINED_SUBJECTS[sem].forEach(s => {
-        allItems.push({ ...s, semester: Number(sem), custom: false });
+    for (let semester = 1; semester <= 8; semester++) {
+      getPredefinedSubjects(semester, selectedBranch).forEach(subject => {
+        allItems.push({ ...subject, semester, custom: false });
       });
-    });
+    }
 
     customSubjects.forEach(cs => {
       allItems.push({ ...cs, semester: Number(cs.semester || 1), custom: true });

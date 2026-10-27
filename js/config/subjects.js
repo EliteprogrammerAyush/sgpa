@@ -6,6 +6,7 @@
 
 export const CS_BRANCHES = [
   { id: "cse", name: "CSE - Core Computer Science & Engineering" },
+  { id: "cse_iot", name: "CSE - Internet of Things (IoT)" },
   { id: "aids", name: "AI & DS - Artificial Intelligence & Data Science" },
   { id: "cyber", name: "Cyber Security - CS & Cyber Security" },
   { id: "it", name: "IT - Information Technology & Software Eng" }
@@ -68,9 +69,57 @@ export const PREDEFINED_SUBJECTS = {
   // Semesters 5-8 Branch Specific Catalog
   branches: {
     // -------------------------------------------------------------
-    // Branch 1: CSE (Core Computer Science & Engineering)
+    // CSE-Core (Computer Science & Engineering)
     // -------------------------------------------------------------
     cse: {
+      5: [
+        { code: "5CS3-01", name: "Information Theory & Coding", credits: 2, type: "theory", internalMaxMarks: 20, externalMaxMarks: 80, totalMaxMarks: 100 },
+        { code: "5CS4-02", name: "Compiler Design", credits: 3, type: "theory", internalMaxMarks: 30, externalMaxMarks: 120, totalMaxMarks: 150 },
+        { code: "5CS4-03", name: "Operating System", credits: 3, type: "theory", internalMaxMarks: 30, externalMaxMarks: 120, totalMaxMarks: 150 },
+        { code: "5CS4-04", name: "Computer Graphics & Multimedia", credits: 3, type: "theory", internalMaxMarks: 30, externalMaxMarks: 120, totalMaxMarks: 150 },
+        { code: "5CS4-05", name: "Analysis of Algorithms", credits: 3, type: "theory", internalMaxMarks: 30, externalMaxMarks: 120, totalMaxMarks: 150 },
+        { code: "5CS5-11", name: "Wireless Communication", credits: 2, type: "elective", internalMaxMarks: 20, externalMaxMarks: 80, totalMaxMarks: 100 },
+        { code: "5CS5-12", name: "Human Computer Interaction", credits: 2, type: "elective", internalMaxMarks: 20, externalMaxMarks: 80, totalMaxMarks: 100 },
+        { code: "5CS5-13", name: "Bioinformatics", credits: 2, type: "elective", internalMaxMarks: 20, externalMaxMarks: 80, totalMaxMarks: 100 },
+        { code: "5CS4-21", name: "Computer Graphics & Multimedia Lab", credits: 1, type: "practical", internalMaxMarks: 30, externalMaxMarks: 20, totalMaxMarks: 50 },
+        { code: "5CS4-22", name: "Compiler Design Lab", credits: 1, type: "practical", internalMaxMarks: 30, externalMaxMarks: 20, totalMaxMarks: 50 },
+        { code: "5CS4-23", name: "Analysis of Algorithms Lab", credits: 1, type: "practical", internalMaxMarks: 30, externalMaxMarks: 20, totalMaxMarks: 50 },
+        { code: "5CS4-24", name: "Advance Java Lab", credits: 1, type: "practical", internalMaxMarks: 30, externalMaxMarks: 20, totalMaxMarks: 50 }
+      ],
+      6: [
+        { code: "6CS3-01", name: "Digital Image Processing", credits: 2, type: "theory", internalMaxMarks: 20, externalMaxMarks: 80, totalMaxMarks: 100 },
+        { code: "6CS4-02", name: "Machine Learning", credits: 3, type: "theory", internalMaxMarks: 30, externalMaxMarks: 120, totalMaxMarks: 150 },
+        { code: "6CS4-03", name: "Information Security System", credits: 2, type: "theory", internalMaxMarks: 20, externalMaxMarks: 80, totalMaxMarks: 100 },
+        { code: "6CS4-04", name: "Computer Architecture and Organization", credits: 3, type: "theory", internalMaxMarks: 30, externalMaxMarks: 120, totalMaxMarks: 150 },
+        { code: "6CS4-05", name: "Artificial Intelligence", credits: 2, type: "theory", internalMaxMarks: 20, externalMaxMarks: 80, totalMaxMarks: 100 },
+        { code: "6CS4-06", name: "Cloud Computing", credits: 3, type: "theory", internalMaxMarks: 30, externalMaxMarks: 120, totalMaxMarks: 150 },
+        { code: "6CS5-11", name: "Distributed System", credits: 2, type: "elective", internalMaxMarks: 20, externalMaxMarks: 80, totalMaxMarks: 100 },
+        { code: "6CS5-12", name: "Software Defined Network", credits: 2, type: "elective", internalMaxMarks: 20, externalMaxMarks: 80, totalMaxMarks: 100 },
+        { code: "6CS5-13", name: "Ecommerce & ERP", credits: 2, type: "elective", internalMaxMarks: 20, externalMaxMarks: 80, totalMaxMarks: 100 },
+        { code: "6CS4-21", name: "Digital Image Processing Lab", credits: 1.5, type: "practical", internalMaxMarks: 45, externalMaxMarks: 30, totalMaxMarks: 75 },
+        { code: "6CS4-22", name: "Machine Learning Lab", credits: 1.5, type: "practical", internalMaxMarks: 45, externalMaxMarks: 30, totalMaxMarks: 75 },
+        { code: "6CS4-23", name: "Python Lab", credits: 1.5, type: "practical", internalMaxMarks: 45, externalMaxMarks: 30, totalMaxMarks: 75 },
+        { code: "6CS4-24", name: "Mobile Application Development Lab", credits: 1.5, type: "practical", internalMaxMarks: 45, externalMaxMarks: 30, totalMaxMarks: 75 }
+      ],
+      7: [
+        { code: "7CS01", name: "Big Data Analytics", credits: 3, type: "theory" },
+        { code: "7CS02", name: "Internet of Things (IoT)", credits: 3, type: "theory" },
+        { code: "7CS03", name: "Professional Elective - Cyber Security", credits: 3, type: "elective" },
+        { code: "7CS04", name: "Open Elective - Management Info Systems", credits: 3, type: "elective" },
+        { code: "7CS05", name: "Major Project Part - 1", credits: 3, type: "project" },
+        { code: "7CS06", name: "Big Data & IoT Lab", credits: 2, type: "practical" },
+        { code: "7CS07", name: "Practical Training / Seminar", credits: 2, type: "internship" }
+      ],
+      8: [
+        { code: "8CS01", name: "Professional Elective - Deep Learning", credits: 3, type: "elective" },
+        { code: "8CS02", name: "Open Elective - Entrepreneurship", credits: 3, type: "elective" },
+        { code: "8CS03", name: "Major Project Part - 2", credits: 8, type: "project" },
+        { code: "8CS04", name: "Comprehensive Seminar & Viva", credits: 2, type: "internship" }
+      ]
+    },
+
+    // CSE-IOT semester 5/6 catalog retained separately from the Core syllabus.
+    cse_iot: {
       5: [
         { code: "5CS01", name: "Operating Systems", credits: 3, type: "theory" },
         { code: "5CS02", name: "Compiler Design", credits: 3, type: "theory" },
@@ -91,21 +140,6 @@ export const PREDEFINED_SUBJECTS = {
         { code: "6CS06", name: "Algorithms Lab", credits: 1.5, type: "practical" },
         { code: "6CS07", name: "Machine Learning Lab", credits: 1.5, type: "practical" },
         { code: "6CS08", name: "Mobile Application Lab", credits: 1, type: "practical" }
-      ],
-      7: [
-        { code: "7CS01", name: "Big Data Analytics", credits: 3, type: "theory" },
-        { code: "7CS02", name: "Internet of Things (IoT)", credits: 3, type: "theory" },
-        { code: "7CS03", name: "Professional Elective - Cyber Security", credits: 3, type: "elective" },
-        { code: "7CS04", name: "Open Elective - Management Info Systems", credits: 3, type: "elective" },
-        { code: "7CS05", name: "Major Project Part - 1", credits: 3, type: "project" },
-        { code: "7CS06", name: "Big Data & IoT Lab", credits: 2, type: "practical" },
-        { code: "7CS07", name: "Practical Training / Seminar", credits: 2, type: "internship" }
-      ],
-      8: [
-        { code: "8CS01", name: "Professional Elective - Deep Learning", credits: 3, type: "elective" },
-        { code: "8CS02", name: "Open Elective - Entrepreneurship", credits: 3, type: "elective" },
-        { code: "8CS03", name: "Major Project Part - 2", credits: 8, type: "project" },
-        { code: "8CS04", name: "Comprehensive Seminar & Viva", credits: 2, type: "internship" }
       ]
     },
 
@@ -240,7 +274,7 @@ export const PREDEFINED_SUBJECTS = {
 /**
  * Get predefined subjects for a given semester and branch.
  * @param {number} sem - Semester number (1-8)
- * @param {string} branchId - Branch identifier ('cse', 'aids', 'cyber', 'it')
+ * @param {string} branchId - Branch identifier ('cse', 'cse_iot', 'aids', 'cyber', 'it')
  * @returns {Array} List of predefined subjects
  */
 export function getPredefinedSubjects(sem, branchId = "cse") {
@@ -250,5 +284,7 @@ export function getPredefinedSubjects(sem, branchId = "cse") {
   }
   // For Semesters 5 to 8, return branch-specific subjects
   const branchData = PREDEFINED_SUBJECTS.branches[branchId] || PREDEFINED_SUBJECTS.branches.cse;
-  return branchData[semNum] || [];
+  return branchData[semNum]
+    || (branchId === "cse_iot" ? PREDEFINED_SUBJECTS.branches.cse[semNum] : [])
+    || [];
 }

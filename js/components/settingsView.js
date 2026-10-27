@@ -3,7 +3,7 @@
  */
 
 export function renderSettingsView(container, state, handlers) {
-  const { settings, gradingScale } = state;
+  const { settings, gradingScale, branches = [] } = state;
   const {
     onUpdateSettings,
     onSaveCustomGradingScale,
@@ -20,6 +20,16 @@ export function renderSettingsView(container, state, handlers) {
       <div class="col-span-6 card">
         <div class="card-header">
           <h2 class="card-title">Preferences</h2>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="pref-branch">Engineering Branch</label>
+          <select class="form-control" id="pref-branch">
+            ${branches.map(branch => `
+              <option value="${branch.id}" ${settings.selectedBranch === branch.id ? 'selected' : ''}>${branch.name}</option>
+            `).join('')}
+          </select>
+          <small class="text-muted">The CSE-IOT list is available for semesters 5 and 6; semesters 7 and 8 use CSE-Core defaults.</small>
         </div>
 
         <div class="form-group">
@@ -139,6 +149,13 @@ export function renderSettingsView(container, state, handlers) {
   if (decimalSelect) {
     decimalSelect.addEventListener('change', (e) => {
       onUpdateSettings({ decimalPlaces: Number(e.target.value) });
+    });
+  }
+
+  const branchSelect = container.querySelector('#pref-branch');
+  if (branchSelect) {
+    branchSelect.addEventListener('change', (e) => {
+      onUpdateSettings({ selectedBranch: e.target.value });
     });
   }
 

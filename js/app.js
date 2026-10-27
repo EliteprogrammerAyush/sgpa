@@ -3,7 +3,7 @@
  */
 
 import { StorageService } from './services/storageService.js';
-import { PREDEFINED_SUBJECTS } from './config/subjects.js';
+import { CS_BRANCHES, getPredefinedSubjects } from './config/subjects.js';
 import { renderNavbar } from './components/navbar.js';
 import { renderSGPAView } from './components/sgpaView.js';
 import { renderCGPAView } from './components/cgpaView.js';
@@ -43,9 +43,14 @@ class App {
   }
 
   ensureSemesterSubjectDefaults(semNumber) {
+    if (semNumber >= 5) {
+      this.ensureBranchSubjectDefaults(semNumber);
+      return;
+    }
+
     const semesterData = this.semestersData[semNumber];
     const subjects = semesterData && semesterData.subjects;
-    const predefined = PREDEFINED_SUBJECTS[semNumber] || [];
+    const predefined = getPredefinedSubjects(semNumber, this.settings.selectedBranch);
     const isDefaultSubjectList = Array.isArray(subjects)
       && subjects.length > 0
       && subjects.every(subject => !subject.custom && subject.id && subject.id.startsWith(`sem${semNumber}_def_`));
@@ -55,6 +60,7 @@ class App {
         return subject.code !== updated.code
           || subject.name !== updated.name
           || subject.credits !== updated.credits
+          || subject.type !== updated.type
           || subject.internalMaxMarks !== updated.internalMaxMarks
           || subject.externalMaxMarks !== updated.externalMaxMarks
           || subject.totalMaxMarks !== updated.totalMaxMarks;
@@ -79,7 +85,6 @@ class App {
       this.semestersData[semNumber] = { ...semesterData, mode: 'detailed', subjects: updatedSubjects };
       StorageService.saveSemestersData(this.semestersData);
     } else if (!semesterData || !Array.isArray(subjects)) {
-      const predefined = PREDEFINED_SUBJECTS[semNumber] || [];
       const defaultSubjects = predefined.map((subject, index) => ({
         ...subject,
         id: `sem${semNumber}_def_${index}_${Date.now()}`,
@@ -96,6 +101,79 @@ class App {
     }
   }
 
+  ensureBranchSubjectDefaults(semNumber) {
+    const branchId = this.settings.selectedBranch || "cse";
+    const semesterData = this.semestersData[semNumber] || {};
+    const branchSubjects = { ...(semesterData.branchSubjects || {}) };
+    const predefined = getPredefinedSubjects(semNumber, branchId);
+    let subjects = Array.isArray(semesterData.subjects) ? semesterData.subjects : null;
+    let storedBranchId = semesterData.branchId;
+    let needsSave = false;
+
+    if (!storedBranchId && subjects && subjects.length > 0) {
+      const legacyCode = `${semNumber}CS01`;
+      if (subjects.some(subject => subject.code === legacyCode)) {
+        storedBranchId = "cse_iot";
+        branchSubjects.cse_iot = subjects;
+      } else {
+        storedBranchId = branchId;
+      }
+    }
+
+    if (storedBranchId && storedBranchId !== branchId) {
+      if (subjects) branchSubjects[storedBranchId] = subjects;
+      subjects = branchSubjects[branchId] || null;
+      needsSave = true;
+    } else if (storedBranchId === branchId && subjects) {
+      branchSubjects[branchId] = subjects;
+    }
+
+    const isDefaultSubjectList = Array.isArray(subjects)
+      && subjects.length > 0
+      && subjects.every(subject => !subject.custom && subject.id && subject.id.startsWith(`sem${semNumber}_def_`));
+    const needsDefaultUpdate = isDefaultSubjectList
+      && (subjects.length !== predefined.length || subjects.some((subject, index) => {
+        const updated = predefined[index];
+        return subject.code !== updated.code
+          || subject.name !== updated.name
+          || subject.credits !== updated.credits
+          || subject.type !== updated.type
+          || subject.internalMaxMarks !== updated.internalMaxMarks
+          || subject.externalMaxMarks !== updated.externalMaxMarks
+          || subject.totalMaxMarks !== updated.totalMaxMarks;
+      }));
+
+    if (needsDefaultUpdate || !subjects || subjects.length === 0) {
+      subjects = predefined.map((subject, index) => {
+        const previous = (branchSubjects[branchId] || []).find(item => item.code === subject.code)
+          || (branchSubjects[branchId] || []).find(item => item.name === subject.name);
+        return {
+          ...subject,
+          id: previous ? previous.id : `sem${semNumber}_def_${index}_${Date.now()}`,
+          grade: previous ? previous.grade : "",
+          gradePoint: previous ? previous.gradePoint : null,
+          marks: previous ? previous.marks : null,
+          internalMarks: previous ? previous.internalMarks : null,
+          externalMarks: previous ? previous.externalMarks : null,
+          custom: false
+        };
+      });
+      branchSubjects[branchId] = subjects;
+      needsSave = true;
+    }
+
+    if (needsSave || semesterData.branchId !== branchId || semesterData.subjects !== subjects) {
+      this.semestersData[semNumber] = {
+        ...semesterData,
+        mode: 'detailed',
+        branchId,
+        branchSubjects,
+        subjects
+      };
+      StorageService.saveSemestersData(this.semestersData);
+    }
+  }
+
   getCurrentSubjects() {
     this.ensureSemesterSubjectDefaults(this.currentSemester);
     return this.semestersData[this.currentSemester].subjects || [];
@@ -105,8 +183,14 @@ class App {
     if (!this.semestersData[this.currentSemester]) {
       this.semestersData[this.currentSemester] = { mode: 'detailed' };
     }
-    this.semestersData[this.currentSemester].subjects = subjects;
-    this.semestersData[this.currentSemester].mode = 'detailed';
+    const semesterData = this.semestersData[this.currentSemester];
+    if (this.currentSemester >= 5) {
+      const branchId = this.settings.selectedBranch || "cse";
+      semesterData.branchId = branchId;
+      semesterData.branchSubjects = { ...(semesterData.branchSubjects || {}), [branchId]: subjects };
+    }
+    semesterData.subjects = subjects;
+    semesterData.mode = 'detailed';
     StorageService.saveSemestersData(this.semestersData);
   }
 
@@ -216,14 +300,16 @@ class App {
       });
     } else if (this.activeTab === 'catalog') {
       renderCatalogView(mainContainer, {
-        customSubjects: this.customSubjects
+        customSubjects: this.customSubjects,
+        selectedBranch: this.settings.selectedBranch
       }, {
         onOpenCustomSubjectModal: () => this.openCustomSubjectModal()
       });
     } else if (this.activeTab === 'settings') {
       renderSettingsView(mainContainer, {
         settings: this.settings,
-        gradingScale: this.gradingScale
+        gradingScale: this.gradingScale,
+        branches: CS_BRANCHES
       }, {
         onUpdateSettings: (newSet) => {
           this.settings = { ...this.settings, ...newSet };

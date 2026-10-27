@@ -19,7 +19,7 @@ export function renderTestRunnerModal(container, onClose) {
             <div>
               <strong>${allPassed ? `All ${results.length} Accuracy Tests Passed` : 'Tests Failed'}</strong>
               <p style="margin-top: 0.15rem; font-size: 0.8125rem;">
-                Verified SGPA/CGPA calculations, RTU IA/ETE marks, semester subject defaults, and incomplete-mark handling.
+                Verified SGPA/CGPA calculations, RTU marks, branch-specific semester subjects, and incomplete-mark handling.
               </p>
             </div>
           </div>

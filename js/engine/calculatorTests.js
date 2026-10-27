@@ -11,7 +11,7 @@ import {
 } from './calculatorEngine.js';
 
 import { DEFAULT_GRADING_SCALE } from '../config/gradingRules.js';
-import { PREDEFINED_SUBJECTS } from '../config/subjects.js';
+import { getPredefinedSubjects, PREDEFINED_SUBJECTS } from '../config/subjects.js';
 
 export function runAutomatedTests() {
   const results = [];
@@ -219,6 +219,43 @@ export function runAutomatedTests() {
     );
   } catch (e) {
     assert("Test 10 — RTU scheme defaults", false, e.message);
+  }
+
+  // -------------------------------------------------------------
+  // Test 11: CSE-Core Semester V and VI Scheme
+  // -------------------------------------------------------------
+  try {
+    const semesterFive = getPredefinedSubjects(5, "cse");
+    const semesterSix = getPredefinedSubjects(6, "cse");
+    const iotSemesterFive = getPredefinedSubjects(5, "cse_iot");
+    const result = calculateSGPA([
+      { ...semesterFive.find(subject => subject.code === "5CS4-02"), internalMarks: 21, externalMarks: 84 },
+      { ...semesterSix.find(subject => subject.code === "6CS4-21"), internalMarks: 31.5, externalMarks: 21 }
+    ], DEFAULT_GRADING_SCALE, { inputMode: "marks" });
+    const semesterCredits = [
+      semesterFive.reduce((total, subject) => total + subject.credits, 0),
+      semesterSix.reduce((total, subject) => total + subject.credits, 0)
+    ];
+    const hasValidSchemes = semesterFive.length === 12
+      && semesterSix.length === 13
+      && semesterCredits[0] === 24
+      && semesterCredits[1] === 27
+      && iotSemesterFive.some(subject => subject.code === "5CS01")
+      && !iotSemesterFive.some(subject => subject.code === "5CS3-01")
+      && [...semesterFive, ...semesterSix].every(subject =>
+        subject.totalMaxMarks === subject.internalMaxMarks + subject.externalMaxMarks
+      );
+    const passed = result.isComplete
+      && result.subjectBreakdown.every(subject => subject.grade === "B+")
+      && result.totalCreditPoints === 36
+      && hasValidSchemes;
+    assert(
+      "Test 11 — CSE-Core V/VI courses, credits, and marks normalization",
+      passed,
+      `Semester credits: ${semesterCredits.join(", ")}; grades: ${result.subjectBreakdown.map(subject => subject.grade).join(", ")}; credit points: ${result.totalCreditPoints}`
+    );
+  } catch (e) {
+    assert("Test 11 — CSE-Core V/VI scheme", false, e.message);
   }
 
   const allPassed = results.every(r => r.passed);

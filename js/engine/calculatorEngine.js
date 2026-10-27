@@ -79,17 +79,28 @@ export function calculateSGPA(subjects = [], gradingScale = [], options = {}) {
     if (options.inputMode === "marks") {
       const hasInternalMarks = sub.internalMarks !== undefined && sub.internalMarks !== null && sub.internalMarks !== "";
       const hasExternalMarks = sub.externalMarks !== undefined && sub.externalMarks !== null && sub.externalMarks !== "";
+      let marksPercentage = null;
 
-      if (typeof sub.internalMaxMarks === "number" && typeof sub.externalMaxMarks === "number" && (hasInternalMarks || hasExternalMarks)) {
+      if (typeof sub.internalMaxMarks === "number" && typeof sub.externalMaxMarks === "number") {
         const internalMarks = Number(sub.internalMarks);
         const externalMarks = Number(sub.externalMarks);
         const validMarks = hasInternalMarks && hasExternalMarks
           && internalMarks >= 0 && internalMarks <= sub.internalMaxMarks
           && externalMarks >= 0 && externalMarks <= sub.externalMaxMarks;
         marks = validMarks ? internalMarks + externalMarks : null;
+        const totalMaxMarks = sub.internalMaxMarks + sub.externalMaxMarks;
+        if (marks !== null && totalMaxMarks > 0) {
+          marksPercentage = (marks / totalMaxMarks) * 100;
+        }
+      } else if (marks !== undefined && marks !== null && marks !== "") {
+        const numericMarks = Number(marks);
+        const totalMaxMarks = Number(sub.totalMaxMarks) || 100;
+        if (numericMarks >= 0 && numericMarks <= totalMaxMarks) {
+          marksPercentage = (numericMarks / totalMaxMarks) * 100;
+        }
       }
 
-      const mapped = mapMarksToGrade(marks, gradingScale);
+      const mapped = mapMarksToGrade(marksPercentage, gradingScale);
       grade = mapped ? mapped.grade : "";
       gradePoint = mapped ? mapped.gradePoint : null;
     } else if (gradePoint === undefined || gradePoint === null) {
