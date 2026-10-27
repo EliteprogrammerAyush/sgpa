@@ -83,7 +83,7 @@ export function renderSettingsView(container, state, handlers) {
         <div class="card-header">
           <div>
             <h2 class="card-title">Grading Scale</h2>
-            <div class="card-subtitle">Adjust grade points according to your university</div>
+            <div class="card-subtitle">Adjust grade points according to your College</div>
           </div>
         </div>
 

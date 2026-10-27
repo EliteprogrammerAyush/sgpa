@@ -14,36 +14,41 @@ export const CS_BRANCHES = [
 export const PREDEFINED_SUBJECTS = {
   // Semesters 1-4: Common Foundational Subjects
   1: [
-    { code: "1BS01", name: "Engineering Mathematics - I", credits: 4, type: "theory" },
-    { code: "1BS02", name: "Engineering Physics", credits: 3, type: "theory" },
-    { code: "1ES03", name: "Basic Electrical Engineering", credits: 3, type: "theory" },
-    { code: "1ES04", name: "Programming for Problem Solving", credits: 3, type: "theory" },
-    { code: "1BS05", name: "Engineering Physics Lab", credits: 1, type: "practical" },
-    { code: "1ES06", name: "Basic Electrical Engineering Lab", credits: 1, type: "practical" },
-    { code: "1ES07", name: "Programming Lab", credits: 1.5, type: "practical" },
-    { code: "1HS08", name: "Environmental Studies / FEC", credits: 0.5, type: "fec" }
+    { code: "1FY2-01", name: "Engineering Mathematics - I", credits: 4, type: "theory", internalMaxMarks: 30, externalMaxMarks: 70 },
+    { code: "1FY2-02", name: "Engineering Physics", credits: 4, type: "theory", internalMaxMarks: 30, externalMaxMarks: 70 },
+    { code: "1FY1-04", name: "Communication Skills", credits: 2, type: "theory", internalMaxMarks: 30, externalMaxMarks: 70 },
+    { code: "1FY3-06", name: "Programming for Problem Solving", credits: 2, type: "theory", internalMaxMarks: 30, externalMaxMarks: 70 },
+    { code: "1FY3-08", name: "Basic Electrical Engineering", credits: 2, type: "theory", internalMaxMarks: 30, externalMaxMarks: 70 },
+    { code: "1FY2-20", name: "Engineering Physics Lab", credits: 1, type: "practical", internalMaxMarks: 60, externalMaxMarks: 40 },
+    { code: "1FY1-22", name: "Language Lab", credits: 1, type: "practical", internalMaxMarks: 60, externalMaxMarks: 40 },
+    { code: "1FY3-24", name: "Computer Programming Lab", credits: 1.5, type: "practical", internalMaxMarks: 60, externalMaxMarks: 40 },
+    { code: "1FY3-26", name: "Basic Electrical Engineering Lab", credits: 1, type: "practical", internalMaxMarks: 60, externalMaxMarks: 40 },
+    { code: "1FY3-28", name: "Computer Aided Engineering Graphics", credits: 1.5, type: "practical", internalMaxMarks: 60, externalMaxMarks: 40 },
+    { code: "1FY8-0X", name: "NCC / NSS / Sports", credits: 0.5, type: "fec", totalMaxMarks: 100 }
   ],
   2: [
-    { code: "2BS01", name: "Engineering Mathematics - II", credits: 4, type: "theory" },
-    { code: "2BS02", name: "Engineering Chemistry", credits: 3, type: "theory" },
-    { code: "2ES03", name: "Basic Electronics Engineering", credits: 3, type: "theory" },
-    { code: "2ES04", name: "Engineering Graphics & Design", credits: 2, type: "theory" },
-    { code: "2HS05", name: "Communication Skills", credits: 2, type: "theory" },
-    { code: "2BS06", name: "Engineering Chemistry Lab", credits: 1, type: "practical" },
-    { code: "2ES07", name: "Basic Electronics Lab", credits: 1, type: "practical" },
-    { code: "2ES08", name: "Workshop Practice Lab", credits: 1.5, type: "practical" },
-    { code: "2HS09", name: "Communication Skills Lab", credits: 1, type: "practical" }
+    { code: "2FY2-01", name: "Engineering Mathematics - II", credits: 4, type: "theory", internalMaxMarks: 30, externalMaxMarks: 70 },
+    { code: "2FY2-03", name: "Engineering Chemistry", credits: 4, type: "theory", internalMaxMarks: 30, externalMaxMarks: 70 },
+    { code: "2FY1-05", name: "Human Values", credits: 2, type: "theory", internalMaxMarks: 30, externalMaxMarks: 70 },
+    { code: "2FY3-07", name: "Basic Mechanical Engineering", credits: 2, type: "theory", internalMaxMarks: 30, externalMaxMarks: 70 },
+    { code: "2FY3-09", name: "Basic Civil Engineering", credits: 2, type: "theory", internalMaxMarks: 30, externalMaxMarks: 70 },
+    { code: "2FY2-21", name: "Engineering Chemistry Lab", credits: 1, type: "practical", internalMaxMarks: 60, externalMaxMarks: 40 },
+    { code: "2FY1-23", name: "Human Values Activities and Sports", credits: 1, type: "practical", internalMaxMarks: 60, externalMaxMarks: 40 },
+    { code: "2FY3-25", name: "Manufacturing Practices Workshop", credits: 1.5, type: "practical", internalMaxMarks: 60, externalMaxMarks: 40 },
+    { code: "2FY3-27", name: "Basic Civil Engineering Lab", credits: 1, type: "practical", internalMaxMarks: 60, externalMaxMarks: 40 },
+    { code: "2FY3-29", name: "Computer Aided Machine Drawing", credits: 1.5, type: "practical", internalMaxMarks: 60, externalMaxMarks: 40 },
+    { code: "1FY8-0X", name: "NCC / NSS / Sports", credits: 0.5, type: "fec", totalMaxMarks: 100 }
   ],
   3: [
     { code: "3CS01", name: "Data Structures & Algorithms", credits: 3, type: "theory" },
     { code: "3CS02", name: "Object Oriented Programming (C++)", credits: 3, type: "theory" },
     { code: "3CS03", name: "Digital Logic Design", credits: 3, type: "theory" },
     { code: "3CS04", name: "Software Engineering", credits: 3, type: "theory" },
-    { code: "3BS05", name: "Advanced Engineering Mathematics", credits: 3, type: "theory" },
+    { code: "3CS05", name: "Advanced Engineering Mathematics", credits: 3, type: "theory" },
     { code: "3CS06", name: "Data Structures Lab", credits: 1.5, type: "practical" },
     { code: "3CS07", name: "OOP Lab", credits: 1.5, type: "practical" },
     { code: "3CS08", name: "Digital Design Lab", credits: 1, type: "practical" },
-    { code: "3HS09", name: "Human Values & Professional Ethics", credits: 0.5, type: "fec" }
+    { code: "3CS09", name: "Human Values & Professional Ethics", credits: 0.5, type: "fec" }
   ],
   4: [
     { code: "4CIT1-01", name: "Managerial Economics & Financial Accounting", credits: 2, type: "theory" },
@@ -70,7 +75,7 @@ export const PREDEFINED_SUBJECTS = {
         { code: "5CS01", name: "Operating Systems", credits: 3, type: "theory" },
         { code: "5CS02", name: "Compiler Design", credits: 3, type: "theory" },
         { code: "5CS03", name: "Computer Architecture & Organization", credits: 3, type: "theory" },
-        { code: "5CS04", name: "Artificial Intelligence", credits: 3, type: "theory" },
+        { code: "5CS04", name: "", credits: 3, type: "theory" },
         { code: "5CS05", name: "Professional Elective - Web Technologies", credits: 3, type: "elective" },
         { code: "5CS06", name: "Operating Systems Lab", credits: 1.5, type: "practical" },
         { code: "5CS07", name: "Compiler Design Lab", credits: 1, type: "practical" },

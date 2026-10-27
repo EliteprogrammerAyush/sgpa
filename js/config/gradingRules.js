@@ -13,7 +13,7 @@ export const DEFAULT_GRADING_SCALE = [
   { grade: "C",   gradePoint: 5.0,  minMarks: 50, maxMarks: 54,  isPass: true, description: "Satisfactory" },
   { grade: "D+",  gradePoint: 4.0,  minMarks: 45, maxMarks: 49,  isPass: true, description: "Pass (Lower)" },
   { grade: "D",   gradePoint: 3.0,  minMarks: 40, maxMarks: 44,  isPass: true, description: "Marginal Pass" },
-  { grade: "F",   gradePoint: 0.0,  minMarks: 0,  maxMarks: 39,  isPass: false, description: "Fail" }
+  { grade: "F",   gradePoint: 0.0,  minMarks: 0,  maxMarks: 39,  isPass: false, description: "Fail-Sharam kar" }
 ];
 
 export const ACADEMIC_STATUSES = [

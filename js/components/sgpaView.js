@@ -24,11 +24,95 @@ export function renderSGPAView(container, state, handlers) {
     onResetSemester
   } = handlers;
 
+  const renderMarksInput = (subject) => {
+    const hasSplitMarks = Number.isFinite(subject.internalMaxMarks)
+      && Number.isFinite(subject.externalMaxMarks);
+    if (!hasSplitMarks) {
+      const maxMarks = subject.totalMaxMarks || 100;
+      return `<input type="number" min="0" max="${maxMarks}" class="form-control marks-input" data-component="total" data-id="${subject.id}" value="${subject.marks ?? ''}" placeholder="0-${maxMarks}" aria-label="Total marks, maximum ${maxMarks}" style="padding: 0.35rem 0.5rem; width: 100px; font-weight: 600;">`;
+    }
+
+    const hasBothMarks = subject.internalMarks !== null && subject.internalMarks !== undefined && subject.internalMarks !== ""
+      && subject.externalMarks !== null && subject.externalMarks !== undefined && subject.externalMarks !== "";
+    const totalMarks = hasBothMarks
+      ? Number(subject.internalMarks) + Number(subject.externalMarks)
+      : subject.marks ?? "";
+
+    return `
+      <div style="display: flex; align-items: center; gap: 0.25rem;">
+        <input type="number" min="0" max="${subject.internalMaxMarks}" class="form-control marks-input" data-component="internal" data-id="${subject.id}" value="${subject.internalMarks ?? ''}" placeholder="IA/${subject.internalMaxMarks}" aria-label="Internal assessment marks, maximum ${subject.internalMaxMarks}" style="padding: 0.35rem 0.25rem; width: 82px; font-weight: 600;">
+        <span aria-hidden="true">+</span>
+        <input type="number" min="0" max="${subject.externalMaxMarks}" class="form-control marks-input" data-component="external" data-id="${subject.id}" value="${subject.externalMarks ?? ''}" placeholder="ETE/${subject.externalMaxMarks}" aria-label="End-term exam marks, maximum ${subject.externalMaxMarks}" style="padding: 0.35rem 0.25rem; width: 82px; font-weight: 600;">
+        <span aria-hidden="true">=</span>
+        <span class="text-muted" aria-label="Total marks" data-total-marks-for="${subject.id}">${totalMarks}</span>
+      </div>
+    `;
+  };
+
   const sgpaResult = calculateSGPA(currentSubjects, gradingScale, {
     inputMode,
     decimalPlaces: settings.decimalPlaces,
     blockOnIncomplete: true
   });
+
+  const updateMarksResult = (subjectId) => {
+    const result = calculateSGPA(currentSubjects, gradingScale, {
+      inputMode: 'marks',
+      decimalPlaces: settings.decimalPlaces,
+      blockOnIncomplete: true
+    });
+    const subjectResult = result.subjectBreakdown.find(subject => subject.id === subjectId);
+    const currentSubject = currentSubjects.find(subject => subject.id === subjectId);
+
+    if (subjectResult) {
+      container.querySelectorAll(`[data-grade-point-for="${subjectId}"]`).forEach(element => {
+        element.textContent = subjectResult.isMissingGrade ? '--' : subjectResult.gradePoint;
+      });
+      container.querySelectorAll(`[data-credit-points-for="${subjectId}"]`).forEach(element => {
+        element.textContent = subjectResult.isMissingGrade ? '--' : subjectResult.creditPoints;
+      });
+    }
+
+    if (currentSubject) {
+      const hasSplitMarks = Number.isFinite(currentSubject.internalMaxMarks)
+        && Number.isFinite(currentSubject.externalMaxMarks);
+      const hasBothMarks = currentSubject.internalMarks !== null && currentSubject.internalMarks !== undefined
+        && currentSubject.internalMarks !== "" && currentSubject.externalMarks !== null
+        && currentSubject.externalMarks !== undefined && currentSubject.externalMarks !== "";
+      const totalMarks = hasSplitMarks
+        ? hasBothMarks ? Number(currentSubject.internalMarks) + Number(currentSubject.externalMarks) : currentSubject.marks ?? ''
+        : currentSubject.marks ?? '';
+      container.querySelectorAll(`[data-total-marks-for="${subjectId}"]`).forEach(element => {
+        element.textContent = totalMarks;
+      });
+    }
+
+    const score = container.querySelector('#sgpa-score');
+    const scoreSubtitle = container.querySelector('#sgpa-score-subtitle');
+    const totalCredits = container.querySelector('#sgpa-total-credits');
+    const totalPoints = container.querySelector('#sgpa-total-points');
+    const formula = container.querySelector('#sgpa-formula');
+    const incompleteAlert = container.querySelector('#incomplete-grade-alert');
+
+    if (score) score.textContent = result.isComplete ? result.sgpaFormatted : '--';
+    if (scoreSubtitle) {
+      scoreSubtitle.textContent = result.isComplete
+        ? `${result.totalCredits} Credits Considered`
+        : 'Enter all grades to view score';
+    }
+    if (totalCredits) totalCredits.textContent = result.totalCredits;
+    if (totalPoints) totalPoints.textContent = result.totalCreditPoints;
+    if (formula) formula.textContent = result.formulaExplanation;
+    if (incompleteAlert) {
+      incompleteAlert.style.display = result.isComplete ? 'none' : '';
+      const heading = incompleteAlert.querySelector('strong');
+      const details = incompleteAlert.querySelector('p');
+      if (heading) heading.textContent = `Incomplete Grades (${result.missingSubjects.length} pending)`;
+      if (details) {
+        details.textContent = `Please select grades or enter marks for all subjects (${result.missingSubjects.map(subject => subject.code).join(', ')}) to view your SGPA.`;
+      }
+    }
+  };
 
   const html = `
     <div class="grid grid-cols-12">
@@ -76,7 +160,7 @@ export function renderSGPAView(container, state, handlers) {
 
       <!-- Incomplete Grade Alert -->
       ${!sgpaResult.isComplete ? `
-        <div class="col-span-12 alert alert-warning">
+        <div class="col-span-12 alert alert-warning" id="incomplete-grade-alert">
           <div>
             <strong>Incomplete Grades (${sgpaResult.missingSubjects.length} pending)</strong>
             <p style="margin-top: 0.15rem; font-size: 0.8125rem;">
@@ -103,7 +187,7 @@ export function renderSGPAView(container, state, handlers) {
                 <th>Code</th>
                 <th>Subject Name</th>
                 <th>Credits</th>
-                <th>${inputMode === 'grade' ? 'Grade' : 'Marks (0-100)'}</th>
+                <th>${inputMode === 'grade' ? 'Grade' : 'IA / ETE (Total)'}</th>
                 <th>Grade Point</th>
                 <th>Credit × GP</th>
                 <th style="text-align: right;">Action</th>
@@ -129,13 +213,13 @@ export function renderSGPAView(container, state, handlers) {
                           `).join('')}
                         </select>
                       ` : `
-                        <input type="number" min="0" max="100" class="form-control marks-input" data-id="${sub.id}" value="${sub.marks !== undefined && sub.marks !== null ? sub.marks : ''}" placeholder="Marks" style="padding: 0.35rem 0.5rem; width: 90px; font-weight: 600;">
+                        ${renderMarksInput(sub)}
                       `}
                     </td>
-                    <td style="font-weight: 600;">
+                    <td style="font-weight: 600;" data-grade-point-for="${sub.id}">
                       ${subPoint.isMissingGrade ? '<span style="color: var(--accent-danger);">--</span>' : subPoint.gradePoint}
                     </td>
-                    <td style="font-weight: 600; color: var(--primary);">
+                    <td style="font-weight: 600; color: var(--primary);" data-credit-points-for="${sub.id}">
                       ${subPoint.isMissingGrade ? '--' : subPoint.creditPoints}
                     </td>
                     <td style="text-align: right;">
@@ -184,12 +268,12 @@ export function renderSGPAView(container, state, handlers) {
                         ${gradingScale.map(g => `<option value="${g.grade}" ${sub.grade === g.grade ? 'selected' : ''}>${g.grade} (${g.gradePoint})</option>`).join('')}
                       </select>
                     ` : `
-                      <input type="number" min="0" max="100" class="form-control marks-input" data-id="${sub.id}" value="${sub.marks !== undefined && sub.marks !== null ? sub.marks : ''}" placeholder="Marks">
+                      ${renderMarksInput(sub)}
                     `}
                   </div>
                   <div>
                     <label class="form-label" style="font-size: 0.75rem;">Credit Points</label>
-                    <div style="font-weight: 700; font-size: 1rem; color: var(--primary);">
+                    <div class="credit-point-value" data-credit-points-for="${sub.id}" style="font-weight: 700; font-size: 1rem; color: var(--primary);">
                       ${subPoint.isMissingGrade ? '--' : subPoint.creditPoints}
                     </div>
                   </div>
@@ -206,10 +290,10 @@ export function renderSGPAView(container, state, handlers) {
         <!-- Clean Score Box -->
         <div class="score-box">
           <div class="score-label">Semester ${currentSemester} SGPA</div>
-          <div class="score-value">
+          <div class="score-value" id="sgpa-score">
             ${sgpaResult.isComplete ? sgpaResult.sgpaFormatted : '--'}
           </div>
-          <div style="font-size: 0.8125rem; opacity: 0.9;">
+          <div id="sgpa-score-subtitle" style="font-size: 0.8125rem; opacity: 0.9;">
             ${sgpaResult.isComplete ? `${sgpaResult.totalCredits} Credits Considered` : 'Enter all grades to view score'}
           </div>
         </div>
@@ -218,11 +302,11 @@ export function renderSGPAView(container, state, handlers) {
         <div class="card" style="padding: 1rem 1.25rem;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
             <span class="text-muted" style="font-size: 0.875rem;">Total Credits:</span>
-            <span style="font-weight: 700;">${sgpaResult.totalCredits}</span>
+            <span id="sgpa-total-credits" style="font-weight: 700;">${sgpaResult.totalCredits}</span>
           </div>
           <div style="display: flex; justify-content: space-between;">
             <span class="text-muted" style="font-size: 0.875rem;">Total Credit Points:</span>
-            <span style="font-weight: 700; color: var(--primary);">${sgpaResult.totalCreditPoints}</span>
+            <span id="sgpa-total-points" style="font-weight: 700; color: var(--primary);">${sgpaResult.totalCreditPoints}</span>
           </div>
         </div>
 
@@ -231,7 +315,7 @@ export function renderSGPAView(container, state, handlers) {
           <div class="card-header" style="margin-bottom: 0.5rem; padding-bottom: 0.375rem;">
             <h3 class="card-title" style="font-size: 0.875rem;">Calculation Formula</h3>
           </div>
-          <div class="formula-box">
+          <div class="formula-box" id="sgpa-formula">
 ${sgpaResult.formulaExplanation}
           </div>
         </div>
@@ -258,7 +342,11 @@ ${sgpaResult.formulaExplanation}
   });
 
   container.querySelectorAll('.marks-input').forEach(inp => {
-    inp.addEventListener('input', (e) => onSubjectMarksChange(inp.getAttribute('data-id'), e.target.value));
+    inp.addEventListener('input', (e) => {
+      const subjectId = inp.getAttribute('data-id');
+      onSubjectMarksChange(subjectId, e.target.value, inp.getAttribute('data-component'), false);
+      updateMarksResult(subjectId);
+    });
   });
 
   container.querySelectorAll('.btn-delete-sub').forEach(btn => {

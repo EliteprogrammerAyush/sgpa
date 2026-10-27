@@ -11,6 +11,7 @@ import {
 } from './calculatorEngine.js';
 
 import { DEFAULT_GRADING_SCALE } from '../config/gradingRules.js';
+import { PREDEFINED_SUBJECTS } from '../config/subjects.js';
 
 export function runAutomatedTests() {
   const results = [];
@@ -166,6 +167,58 @@ export function runAutomatedTests() {
     );
   } catch (e) {
     assert("Test 8 — Target CGPA Validation", false, e.message);
+  }
+
+  // -------------------------------------------------------------
+  // Test 9: RTU Internal and End-Term Marks
+  // -------------------------------------------------------------
+  try {
+    const subjects = [
+      { code: "1FY2-01", name: "Theory", credits: 4, internalMaxMarks: 30, externalMaxMarks: 70, internalMarks: 21, externalMarks: 49 },
+      { code: "1FY2-20", name: "Lab", credits: 1, internalMaxMarks: 60, externalMaxMarks: 40, internalMarks: 60, externalMarks: 40 }
+    ];
+    const result = calculateSGPA(subjects, DEFAULT_GRADING_SCALE, { inputMode: "marks" });
+    const passed = result.isComplete
+      && result.subjectBreakdown[0].grade === "B+"
+      && result.subjectBreakdown[1].grade === "A++"
+      && result.totalCreditPoints === 42;
+    assert(
+      "Test 9 — RTU IA/ETE marks map using combined marks",
+      passed,
+      `Expected grades B+ and A++ with 42 credit points, got ${result.subjectBreakdown.map(subject => subject.grade).join(", ")} and ${result.totalCreditPoints}`
+    );
+  } catch (e) {
+    assert("Test 9 — RTU IA/ETE marks", false, e.message);
+  }
+
+  // -------------------------------------------------------------
+  // Test 10: Incomplete RTU Marks and Semester Scheme
+  // -------------------------------------------------------------
+  try {
+    const partialResult = calculateSGPA([
+      { code: "1FY2-01", name: "Theory", credits: 4, internalMaxMarks: 30, externalMaxMarks: 70, internalMarks: 21, externalMarks: null }
+    ], DEFAULT_GRADING_SCALE, { inputMode: "marks" });
+    const semesterCredits = [1, 2].map(semester =>
+      PREDEFINED_SUBJECTS[semester].reduce((total, subject) => total + subject.credits, 0)
+    );
+    const isSchemeAccurate = [1, 2].every(semester =>
+      PREDEFINED_SUBJECTS[semester].length === 11
+        && PREDEFINED_SUBJECTS[semester].every(subject =>
+          subject.internalMaxMarks === 30 && subject.externalMaxMarks === 70
+            || subject.internalMaxMarks === 60 && subject.externalMaxMarks === 40
+            || subject.totalMaxMarks === 100
+        )
+    ) && semesterCredits.every(credits => credits === 20.5);
+    const passed = !partialResult.isComplete
+      && partialResult.missingSubjects.length === 1
+      && isSchemeAccurate;
+    assert(
+      "Test 10 — RTU scheme defaults and incomplete split marks",
+      passed,
+      `Incomplete split marks blocked: ${!partialResult.isComplete}; semester credits: ${semesterCredits.join(", ")}`
+    );
+  } catch (e) {
+    assert("Test 10 — RTU scheme defaults", false, e.message);
   }
 
   const allPassed = results.every(r => r.passed);

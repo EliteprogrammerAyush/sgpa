@@ -17,9 +17,9 @@ export function renderTestRunnerModal(container, onClose) {
         <div class="modal-body">
           <div class="alert ${allPassed ? 'alert-info' : 'alert-warning'}" style="margin-bottom: 1rem;">
             <div>
-              <strong>${allPassed ? 'All 8 Accuracy Tests Passed' : 'Tests Failed'}</strong>
+              <strong>${allPassed ? `All ${results.length} Accuracy Tests Passed` : 'Tests Failed'}</strong>
               <p style="margin-top: 0.15rem; font-size: 0.8125rem;">
-                Verified basic SGPA, decimal credits, credit-weighted CGPA, missing grades, custom subjects, and target calculations.
+                Verified SGPA/CGPA calculations, RTU IA/ETE marks, semester subject defaults, and incomplete-mark handling.
               </p>
             </div>
           </div>

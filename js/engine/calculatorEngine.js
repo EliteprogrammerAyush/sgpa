@@ -76,12 +76,22 @@ export function calculateSGPA(subjects = [], gradingScale = [], options = {}) {
     let gradePoint = sub.gradePoint;
     let marks = sub.marks;
 
-    if (options.inputMode === "marks" && (marks !== undefined && marks !== null && marks !== "")) {
-      const mapped = mapMarksToGrade(marks, gradingScale);
-      if (mapped) {
-        grade = mapped.grade;
-        gradePoint = mapped.gradePoint;
+    if (options.inputMode === "marks") {
+      const hasInternalMarks = sub.internalMarks !== undefined && sub.internalMarks !== null && sub.internalMarks !== "";
+      const hasExternalMarks = sub.externalMarks !== undefined && sub.externalMarks !== null && sub.externalMarks !== "";
+
+      if (typeof sub.internalMaxMarks === "number" && typeof sub.externalMaxMarks === "number" && (hasInternalMarks || hasExternalMarks)) {
+        const internalMarks = Number(sub.internalMarks);
+        const externalMarks = Number(sub.externalMarks);
+        const validMarks = hasInternalMarks && hasExternalMarks
+          && internalMarks >= 0 && internalMarks <= sub.internalMaxMarks
+          && externalMarks >= 0 && externalMarks <= sub.externalMaxMarks;
+        marks = validMarks ? internalMarks + externalMarks : null;
       }
+
+      const mapped = mapMarksToGrade(marks, gradingScale);
+      grade = mapped ? mapped.grade : "";
+      gradePoint = mapped ? mapped.gradePoint : null;
     } else if (gradePoint === undefined || gradePoint === null) {
       const foundGrade = gradingScale.find(g => g.grade === grade);
       if (foundGrade) {

@@ -21,7 +21,7 @@ export function renderNavbar(activeTab, currentTheme, onTabChange, onThemeToggle
       <div class="nav-container">
         <a href="#" class="brand" id="brand-link">
           <div>
-            <div class="brand-title">CGPA & SGPA Calculator</div>
+            <div class="brand-title">C-Calc</div>
             <span class="brand-subtitle">College grade calculator</span>
           </div>
         </a>

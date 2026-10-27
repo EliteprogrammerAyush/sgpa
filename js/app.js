@@ -43,23 +43,55 @@ class App {
   }
 
   ensureSemesterSubjectDefaults(semNumber) {
-    if (!this.semestersData[semNumber] || !Array.isArray(this.semestersData[semNumber].subjects)) {
+    const semesterData = this.semestersData[semNumber];
+    const subjects = semesterData && semesterData.subjects;
+    const predefined = PREDEFINED_SUBJECTS[semNumber] || [];
+    const isDefaultSubjectList = Array.isArray(subjects)
+      && subjects.length > 0
+      && subjects.every(subject => !subject.custom && subject.id && subject.id.startsWith(`sem${semNumber}_def_`));
+    const needsDefaultUpdate = isDefaultSubjectList
+      && (subjects.length !== predefined.length || subjects.some((subject, index) => {
+        const updated = predefined[index];
+        return subject.code !== updated.code
+          || subject.name !== updated.name
+          || subject.credits !== updated.credits
+          || subject.internalMaxMarks !== updated.internalMaxMarks
+          || subject.externalMaxMarks !== updated.externalMaxMarks
+          || subject.totalMaxMarks !== updated.totalMaxMarks;
+      }));
+
+    if (needsDefaultUpdate) {
+      const updatedSubjects = predefined.map((subject, index) => {
+        const previous = subjects.find(item => item.code === subject.code)
+          || subjects.find(item => item.name === subject.name);
+        return {
+          ...subject,
+          id: previous ? previous.id : `sem${semNumber}_def_${index}_${Date.now()}`,
+          grade: previous ? previous.grade : "",
+          gradePoint: previous ? previous.gradePoint : null,
+          marks: previous ? previous.marks : null,
+          internalMarks: previous ? previous.internalMarks : null,
+          externalMarks: previous ? previous.externalMarks : null,
+          custom: false
+        };
+      });
+
+      this.semestersData[semNumber] = { ...semesterData, mode: 'detailed', subjects: updatedSubjects };
+      StorageService.saveSemestersData(this.semestersData);
+    } else if (!semesterData || !Array.isArray(subjects)) {
       const predefined = PREDEFINED_SUBJECTS[semNumber] || [];
-      const defaultSubjects = predefined.map((s, i) => ({
-        id: `sem${semNumber}_def_${i}_${Date.now()}`,
-        code: s.code,
-        name: s.name,
-        credits: s.credits,
-        type: s.type,
+      const defaultSubjects = predefined.map((subject, index) => ({
+        ...subject,
+        id: `sem${semNumber}_def_${index}_${Date.now()}`,
         grade: "",
+        gradePoint: null,
         marks: null,
+        internalMarks: null,
+        externalMarks: null,
         custom: false
       }));
 
-      this.semestersData[semNumber] = {
-        mode: 'detailed',
-        subjects: defaultSubjects
-      };
+      this.semestersData[semNumber] = { mode: 'detailed', subjects: defaultSubjects };
       StorageService.saveSemestersData(this.semestersData);
     }
   }
@@ -121,15 +153,18 @@ class App {
           this.saveCurrentSubjects(subs);
           this.render();
         },
-        onSubjectMarksChange: (subId, marksStr) => {
-          const subs = this.getCurrentSubjects().map(s => {
-            if (s.id === subId) {
-              return { ...s, marks: marksStr !== '' ? Number(marksStr) : null };
-            }
-            return s;
-          });
-          this.saveCurrentSubjects(subs);
-          this.render();
+        onSubjectMarksChange: (subId, marksStr, component, shouldRender = true) => {
+          const subjects = this.getCurrentSubjects();
+          const subject = subjects.find(item => item.id === subId);
+          if (!subject) return;
+
+          const marks = marksStr !== '' ? Number(marksStr) : null;
+          if (component === 'internal') subject.internalMarks = marks;
+          else if (component === 'external') subject.externalMarks = marks;
+          else subject.marks = marks;
+
+          this.saveCurrentSubjects(subjects);
+          if (shouldRender) this.render();
         },
         onOpenCustomSubjectModal: () => this.openCustomSubjectModal(),
         onDeleteSubject: (subId) => {
